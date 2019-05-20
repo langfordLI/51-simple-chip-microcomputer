@@ -1,0 +1,46 @@
+#include<reg51.h>
+#include<intrins.h>
+#define N 200
+
+typedef unsigned char u8;
+typedef unsigned int u16;
+
+sbit motorA = P1^0;
+sbit motorB = P1^1;
+sbit motorC = P1^2;
+sbit motorD = P1^3;
+
+void delay(u16 i)
+{
+	while(i--);
+}
+
+void main()
+{
+	while(1)
+	{
+	 	motorA = 1;
+		motorB = 0;
+		motorC = 1;
+		motorD = 1;
+		delay(N);
+
+		motorA = 0;
+		motorB = 1;
+		motorC = 1;
+		motorD = 1;
+		delay(N);
+
+		motorA = 1;
+		motorB = 1;
+		motorC = 1;
+		motorD = 0;
+		delay(N);
+
+		motorA = 1;
+		motorB = 1;
+		motorC = 0;
+		motorD = 1;
+		delay(N);
+	}
+}
