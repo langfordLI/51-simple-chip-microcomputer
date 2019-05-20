@@ -1,0 +1,25 @@
+#include<reg51.h>
+
+typedef unsigned char u8;
+typedef unsigned int u16;
+
+void delay(u16 i)
+{
+	while(i--);
+}
+
+sbit motor = P1^0;
+
+
+
+void main()
+{
+	u8 i;
+	motor = 0;
+	for(i = 0;i < 100; i++)
+	{
+		motor = 1;
+		delay(5000);
+	}
+	motor = 0;
+}
