@@ -1,0 +1,66 @@
+#include<reg51.h>
+#include<intrins.h>
+
+typedef unsigned char u8;
+typedef unsigned int u16;
+
+sbit srclk = P3^6;
+sbit clk = P3^5;
+sbit ser = P3^4;
+
+void Write595(u8 dat1, u8 dat2, u8 dat3, u8 dat4)
+{
+	u8 i;
+	for(i = 0;i < 8; i++)
+	{
+		ser = dat1>>7;
+		dat1 = dat1<<1;
+
+		srclk = 0;
+		_nop_();
+		_nop_();
+		srclk = 1;
+	}
+	for(i = 0;i < 8; i++)
+	{
+		ser = dat2>>7;
+		dat2 = dat2<<1;
+
+		srclk = 0;
+		_nop_();
+		_nop_();
+		srclk = 1;
+	}
+	for(i = 0;i < 8; i++)
+	{
+		ser = dat3>>7;
+		dat3 = dat3<<1;
+
+		srclk = 0;
+		_nop_();
+		_nop_();
+		srclk = 1;
+	}
+	for(i = 0;i < 8; i++)
+	{
+		ser = dat4>>7;
+		dat4 = dat4<<1;
+
+		srclk = 0;
+		_nop_();
+		_nop_();
+		srclk = 1;
+	}
+	clk = 0;
+	_nop_();
+	_nop_();
+	clk = 1;
+}
+
+void main()
+{
+	  while(1)
+	  {
+	  	Write595(0xff, 0xfe, 0x00, 0x01);
+	  }
+}
