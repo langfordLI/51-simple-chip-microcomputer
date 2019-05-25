@@ -1,0 +1,157 @@
+#include<reg51.h>
+#define LED P1
+#define GPIO_TRAFFIC P0
+
+typedef unsigned char u8;
+typedef unsigned int u16;
+
+sbit decoderA = P2^2;
+sbit decoderB = P2^3;
+sbit decoderC = P2^4;
+
+sbit top_red_human = P0^0;
+sbit top_green_human = P0^1;
+sbit top_red_traffic = P0^2;
+sbit top_yellow_traffic = P0^3;
+sbit top_green_traffic = P0^4;
+
+sbit right_red_human = P2^0;
+sbit right_green_human = P2^1;
+sbit right_red_traffic = P0^5;
+sbit right_yellow_traffic = P0^6;
+sbit right_green_traffic = P0^7;
+
+
+
+u8 second = 0;
+u8 k = 0;
+
+
+u8 code light[] = {0x3f, 0x06, 0x5b, 0x4f, 0x66, 0x6d, 0x7d, 0x07, 0x7f, 0x6f};
+
+	
+	 
+void delay(u16 i)
+{
+	while(i--);
+}
+
+/*the 74HC138 is a decoder from C->A means that the CBA select the address. Such as 110 select the 6 light*/
+void Display(u8 high, u8 low)
+{
+	//light the sixth led
+	decoderA = 0;
+	decoderB = 1;
+	decoderC = 1;
+	P1 = light[high];
+
+	delay(1000);
+	//P1 = 0x00; //disappear the before number;
+
+	//light the  seventh light;
+	decoderA = 1;
+	decoderB = 1;
+	decoderC = 1;
+	P1 = light[low];
+	delay(1000);
+//	P1 = 0x00; //disappear the before number;
+
+}
+
+void Timer0Init()
+{
+	TMOD |= 0x01; 	//set mode 1
+
+	TH0 = 0xFC;
+	TL0 = 0x18;		//the initial count is 1ms
+
+	ET0 = 1;	   //open the timer0 interrupt
+	EA = 1;			//open the all interrupt
+	TR0 = 1;			//open the timer0
+}
+
+void main()
+{
+	Timer0Init();
+
+	/*test*/
+	//u8 i = 0;
+	while(1)
+	{
+		 Display((60 - second) / 10, (60 - second) % 10);
+		
+		if(second <= 25)
+		{
+			/*test*/right_green_human = 1;
+			GPIO_TRAFFIC = 0xff;
+			right_green_human = 1;
+			right_red_human = 1;
+
+			top_green_human = 0;
+			top_green_traffic = 0;
+
+			right_red_human = 0;
+			right_red_traffic = 0;
+		}
+		else if(second <= 30)
+		{
+					/*test*/right_green_human = 1;
+			GPIO_TRAFFIC = 0xff;
+			right_green_human = 1;
+			right_red_human = 1;
+
+			top_green_human = 0;
+			top_yellow_traffic = 0;
+
+			right_red_human = 0;
+			right_red_traffic = 0;
+		}
+		else if(second <= 55)
+		{
+			//		/*test*/right_red_human = 1;
+			GPIO_TRAFFIC = 0xff;
+			right_green_human = 1;
+			right_red_human = 1;
+
+			top_red_human = 0;
+			top_red_traffic = 0;
+
+			right_green_human = 0;
+			right_green_traffic = 0;
+		}
+		else
+		{
+			//		/*test*/right_red_human = 1;
+			GPIO_TRAFFIC = 0xff;
+			right_green_human = 1;
+			right_red_human = 1;
+
+			top_red_human = 0;
+			top_red_traffic = 0;
+
+			right_green_human = 0;
+			right_yellow_traffic = 0;
+		}
+	}
+}
+
+void Timer0Interrupt() interrupt 1
+{
+	static i = 0;
+	
+	TH0 = 0xFC;
+	TL0 = 0x18;		//reset the initial number
+	if(i == 1000)
+	{
+		
+		i = 0;
+		
+		second++;
+		if(second >= 60)
+		{
+			second = 0;
+		}
+	}
+	i++;
+}
+
