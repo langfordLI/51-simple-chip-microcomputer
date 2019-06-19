@@ -1,0 +1,45 @@
+#include<reg51.h>
+#include<intrins.h>
+
+typedef unsigned char u8;
+typedef unsigned int u16;
+
+void UsartInit()
+{
+	/**set the timer**/
+	TMOD = 0x20;   	//set the timer working mode
+
+	TH1 = 0xF3;
+	TL1 = 0xF3;		// set the Timer1 initial value
+
+	PCON = 0x80;	// set the multiplier
+
+	TR1 = 1;	//open the timer1
+
+	/**set the USART working method**/
+	SCON = 0x50;
+	
+	ES = 1;		//open the interrupt of the series
+	EA = 1;	   //open the interrupt of the all
+
+
+}
+
+
+void main()
+{
+	UsartInit();
+	while(1);
+}
+
+void USART() interrupt 4
+{
+	// receive number;
+	u8 receiveData = SBUF; 	// recive the number of the SBUF
+	RI = 0;	// clear the interrupt signal to ready for the next interrupt
+
+	//send number
+	SBUF = 0xC3;
+	while(!TI);	// while the TI haven't become 0, the number is stil sending
+	TI = 0;	//while finish the sending, set the interrupt close
+}
